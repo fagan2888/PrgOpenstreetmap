@@ -1,0 +1,1 @@
+def fix_strname(strname):

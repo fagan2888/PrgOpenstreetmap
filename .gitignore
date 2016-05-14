@@ -1,0 +1,33 @@
+# Compiled source #
+###################
+*.exe
+*.pyc 
+
+# Packages 
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+*.bz2
+
+# Logs and data #
+######################
+*.log
+*.db
+*.sqlite
+*.osm
+*.csv
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
