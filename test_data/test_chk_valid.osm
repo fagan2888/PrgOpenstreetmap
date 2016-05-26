@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="Overpass API">
+<note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+<meta osm_base="2016-05-14T19:25:02Z"/>
+
+  <node id="172508" lat="50.0720254" lon="14.4040320">
+    <tag k="source" v="Bing;cuzk"/>
+  </node>
+  <node id="172513" lat="50.0787619" lon="14.4041580">
+    <tag k="highway" v="traffic_signals"/>
+  </node>
+  <node id="172514" lat="50.0794196" lon="14.4047213"/>
+  <node id="172515" lat="50.0805291" lon="14.4046029">
+    <tag k="name" v="Újezd"/>
+    <tag k="public_transport" v="stop_position"/>
+    <tag k="railway" v="tram_stop"/>
+    <tag k="source" v="bing;cuzk"/>
+    <tag k="tram" v="yes"/>
+  </node>
+  <node id="683611" lat="50.0494560" lon="14.4349056"/>
+  <node id="683612" lat="50.0488886" lon="14.4349213"/>
+  <node id="683613" lat="50.0487908" lon="14.4349641"/>
+  <node id="683618" lat="50.0486010" lon="14.4298007"/>
+  <node id="683661" lat="50.0451427" lon="14.4487294"/>
+  <node id="71672422" lat="50.0801625" lon="14.4232932">
+    <tag k="addr:city" v="Praha"/>
+    <tag k="addr:housenumber" v="15"/>
+    <tag k="addr:postcode" v="11000"/>
+    <tag k="addr:street" v="Vodičkova"/>
+    <tag k="amenity" v="fast_food"/>
+    <tag k="cuisine" v="burger"/>
+    <tag k="name" v="McDonald's"/>
+  </node>
+  <node id="296575197" lat="50.0825919" lon="14.4519535">
+    <tag k="addr:conscriptionnumber" v="1265"/>
+    <tag k="addr:housenumber" v="ev.1265/21"/>
+    <tag k="addr:postcode" v="13000"/>
+    <tag k="addr:street" v="Čajkovského"/>
+    <tag k="addr:streetnumber" v="21"/>
+    <tag k="source:addr" v="uir_adr"/>
+    <tag k="uir_adr:ADRESA_KOD" v="21780072"/>
+  </node>
+  <node id="296575229" lat="50.0720660" lon="14.4422114">
+    <tag k="addr:conscriptionnumber" v="838"/>
+    <tag k="addr:provisionalnumber" v="838"/>
+    <tag k="addr:housenumber" v="838A/18"/>
+    <tag k="addr:postcode" v="12000"/>
+    <tag k="addr:street" v="Máchova"/>
+    <tag k="addr:streetnumber" v="18"/>
+    <tag k="source:addr" v="uir_adr"/>
+    <tag k="uir_adr:ADRESA_KOD" v="21748101"/>
+  </node>
+  <node id="296575346" lat="50.0666526" lon="14.4349770">
+    <tag k="addr:conscriptionnumber" v="02294"/>
+    <tag k="addr:housenumber" v="2294/3"/>
+    <tag k="addr:postcode" v="12000"/>
+    <tag k="addr:street" v="Fričova"/>
+    <tag k="addr:streetnumber" v="0"/>
+    <tag k="source:addr" v="uir_adr"/>
+    <tag k="uir_adr:ADRESA_KOD" v="21757381"/>
+  </node>
+   <way id="95910140">
+    <nd ref="1111295196"/>
+    <nd ref="1111295195"/>
+    <tag k="bridge" v="yes"/>
+    <tag k="electrified" v="contact_line"/>
+    <tag k="frequency" v="0"/>
+    <tag k="gauge" v="1435"/>
+    <tag k="layer" v="1"/>
+    <tag k="maxspeed" v="125"/>
+    <tag k="maxspeed:tilting" v="150"/>
+    <tag k="passenger_lines" v="2"/>
+    <tag k="railway" v="rail"/>
+    <tag k="railway:etcs" v="no"/>
+    <tag k="railway:preferred_direction" v="forward"/>
+    <tag k="railway:radio" v="gsm-r"/>
+    <tag k="railway:track_class" v="D4"/>
+    <tag k="railway:traffic_mode" v="mixed"/>
+    <tag k="source:maxspeed" v="sign"/>
+    <tag k="usage" v="main"/>
+    <tag k="voltage" v="3000"/>
+  </way>
+  <relation id="6170878">
+    <member type="way" ref="36897268" role="from"/>
+    <member type="way" ref="4646742" role="to"/>
+    <member type="way" ref="93708549" role="via"/>
+    <tag k="restriction" v="no_u_turn"/>
+    <tag k="source:restriction" v="CZ:traffic_signals"/>
+    <tag k="type" v="restriction"/>
+  </relation>
+</osm>
