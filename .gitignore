@@ -19,7 +19,6 @@
 *.log
 *.db
 *.sqlite
-*.osm
 *.csv
 
 # OS generated files #
