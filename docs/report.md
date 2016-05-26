@@ -1,17 +1,27 @@
+#Prague OpenStreetMap Project
+
+In this project I am considering map data for Prague, Czech Republic.
+
+House numbering system in Czech Republic is quite complicated, two numbering systems are used concurrently.
+The basic house number is the "old" or "descriptive number" . The descriptive number is unique within the municipal part (a village, a quarter, mostly for one cadastral area) or within a whole small municipality. In most cities there are used also the "new" or "orientation numbers". The orientation numbers are arranged sequentially within the street or square. If the building is on a corner or has two sides, it can have two or more orientation numbers, one for each of the adjacent streets or squares. Typical house number in Prague contains two numbers, which are written devided by slash, e.g. 593/5.
+
 
 https://wiki.openstreetmap.org/wiki/Template:CzechAddress
 https://wiki.openstreetmap.org/wiki/Cs:WikiProject_Czech_Republic/Address_system
+https://en.wikipedia.org/wiki/House_numbering
 
 
-During exploration of small sample of main dataset the following 
-problems were identified:
+Small test dataset of Prague city region were downloaded via Overpass API, latitude in range (50.059973,50.090490) and longitude in (14.417687,14.482060).  
 
-  - House numbers in address
-  
-    In Prague a house has two numbrers 
-        housenumber	496/8,
-        the first number is conscriptionnumber, the second - streetnumber.
-  
+Three main audit procedures related to address data were considered:
+- Audit of house numbers
+- Audit of street names
+- Audit of postcodes
+
+
+###Audit Address: House Numbers
+
+
   Looks like two different addresses for the same element 
 
 ```sh
@@ -79,46 +89,121 @@ Another variant is that housnumber is presented, but it is not complete
 ```
 In this situation housenumber should be housenumber = 1008/22
 
-##Street names
+####Audit House Number Strategy
+ - Validity
+ 	- Both conscriptionnumber and provisionalnumber are given
+ 	- Not valid type of housenumber
+ 	- Not valid type of streetnumber
+ 	- Not valid type of conscriptionnumber or provisionalnumber
+ - Completeness
+	- Missed housenumber
+	- Missed first number (conscriptionnumber | provisionalnumber),streetnumber or both
+	- Missed first number (conscriptionnumber | provisionalnumber) or streetnumber in housenumber
+ - Consistency
+	- Composite hsnumber is not consistent with first number (conscriptionnumber | provisionalnumber) and streetnumber
+	- One-number hsnumber is not consistent with first number (conscriptionnumber | provisionalnumber) or streetnumber
+
+####Fixing House Number Strategy
+ - Fix Completeness problems
+	- Complete housenumber
+	Complete housenumber from given first number (conscriptionnumber | provisionalnumber) and streetnumber
+    - Add first number (conscriptionnumber | provisionalnumber) and streetnumber if they are missed
+
+###Audit Address: Street Names
 
 Most street names contain special Czech symbols, for example: Francouzská, Na Louži.
 Quite often people use only latin letters in short texts, sms, etc. In this situation above
 examples will become Francouzska, Na Louzi. We will check street names on these common mistypes. 
 
-The following function compare two street names and defines if these streets are different, but only in the sense
- of common czech/latin mistypes and capital/small letters. 
-
+The following function compare two street names and defines if these streets are different, but only in the sense of common czech/latin mistypes.
 ```python
-def is_quite_equal(strname1, strname2):
+def is_equalmstp(strname1, strname2):
     cz_subst = {u'á':u'a', u'č':u'c', u'ď':u'd', u'é':u'e', u'ě':u'e', \
              u'í':u'i', u'ň':u'n', u'ó':u'o', u'ř':u'r', u'š':u's', \
               u'ť':u't', u'ů':u'u', u'ý':u'y', u'ž':u'z'}
 
     trf = lambda s: cz_subst.get(s) if cz_subst.get(s) is not None else s
-    if (strname1 != strname2) and ([trf(s) for s in strname1.lower()] == [trf(s) for s in strname2.lower()]):
+    if (strname1 != strname2) and ([trf(s) for s in strname1] == [trf(s) for s in strname2]):
         return True
     else:
         return False 
-
+```
+Function checks if latin versions of two street names are equal while not-latin are not. The list of all street names were constructed, then all possible misspeled cases were identified. Actually there are examples of streets which are equal in described scence, but in reality are different streets.   
+As additional check we will use postcodes. If two different street names have the same latin spelling and the same postcodes, then proably one street name is misspelled. 
 ```sh
 Nitranská, Nitranska
+Národní, Narodni
+```
+Which street name from the pair is misspelled? We will assume this to the one which has lower number of special Czech symbols.
+
+Two street name fiels can have the same spelling, but different case. It is quite common situation for street names which consists of more than one word: all words can start with upper case letter; only the first word starts with upper case letter and etc.
+
+```sh
 náměstí Míru, Náměstí Míru
 K vodě, K Vodě
 ``` 
+All street names should be presented in unified format. All words in street name will start with upper case letter.
 
-The problem of capital/small letters are quite common for street names with more then one word. 
- like á or ě
-
-The following function was
-
+####Fixing Street Names Strategy
+ - All street names should be presented in unified format. All words in street name will start with upper case letter.
+ - Fix mistyped street names (from log file)
 
 
-## Audit postcodes
+###Audit Address: Postcodes
 In Prague poscodes have 5 digits and start from 1, second digit defines dictict of the city. 
-For example address with postcode 12000 is in the city district "Prague 2". However I have noticed that there
- are a lot of non-Prague postcodes, which correspond to villages close to the city. We will check postcodes to be valid postcode in Prague or 
-  Central Bohemian Region (region around Prague). 
-  
+For example address with postcode 12000 is in the city district "Prague 2". However there
+ are some non-Prague postcodes, which correspond to villages close to the city. 
+ 
+ ```sh
+ CZ - 130 00
+ 12000 Praha 7
+ 1051
+ ```
+
+Audit Report
+```sh
+Audit House Numbers
+******************************
+{'Both cnsnumber and prvnumber are given': 1,
+ 'Incomplete hsnumber': 11,
+ 'Inconsistent hsnumber': 13,
+ 'Missed fstnumber, streetnumber or both': 428,
+ 'Missed hsnumber': 73,
+ 'Missed streetnumber or fstnumber in hsnumber': 12,
+ 'Not valid type of housenumber': 55}
+Estimated time:  0h 2min 48sec 864mls
+None
+Audit Street Names
+******************************
+{'Mistyped street names': 8, 'Problem chars in street name': 9}
+Estimated time:  0h 59min 15sec 378mls
+None
+Audit Postcodes
+******************************
+{'Wrong type for post code': 7}
+Estimated time:  0h 2min 8sec 378mls
+```
+
+Example Data Report
+Audit House Numbers
+******************************
+{'COMPLETENESS: Missed fstnumber, streetnumber or both': 85,
+ 'COMPLETENESS: Missed hsnumber': 2,
+ 'COMPLETENESS: Missed streetnumber or fstnumber in hsnumber': 3,
+ 'VALIDITY: Not valid type of housenumber': 5,
+ 'VALIDITY: Not valid type of streetnumber': 1}
+Estimated time:  0h 7min 49sec 473mls
+None
+Audit Street Names
+******************************
+{'Mistyped street names': 1}
+Estimated time:  0h 0min 8sec 901mls
+None
+Audit Postcodes
+******************************
+{'Wrong type for post code': 5}
+Estimated time:  0h 0min 5sec 890mls
+None
 
 
 
