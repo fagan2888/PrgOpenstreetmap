@@ -158,14 +158,13 @@ import csv
 import codecs
 import re
 import xml.etree.cElementTree as ET
+import helper as hlp
+import fixaddr 
+import warnings
 
 import cerberus
 
 import schema
-
-#OSM_PATH = "example.xml"
-OSM_PATH = "..\\data\\example.osm"
-
 
 NODES_PATH = "nodes.csv"
 NODE_TAGS_PATH = "nodes_tags.csv"
@@ -186,6 +185,9 @@ WAY_TAGS_FIELDS = ['id', 'key', 'value', 'type']
 WAY_NODES_FIELDS = ['id', 'node_id', 'position']
 
 TAGS_FIELDS = ['id', 'key', 'value', 'type']
+
+fixAddress = fixaddr.FixAddress("log\\audit_strnames.log")
+
 
 
 def get_field_values(element, fields):
@@ -209,14 +211,8 @@ def get_node_tag(element, root, fields):
 
     values["key"] = node_key
     values["type"] = node_type
-    values["value"] = element.ttrib.get("v")
+    values["value"] = element.attrib.get("v")
     
-    if key == 'addr:street' or key == 'street':
-        #process value to fix street names
-        pass
-
-    if key == 'addr:housenumber' or key == 'addr:housenumber':
-        #process value to fix housenumber
     return values
 
 def get_way_node(element, root, ind,  fields):
@@ -250,6 +246,10 @@ def shape_element(element, node_attr_fields=NODE_FIELDS, way_attr_fields=WAY_FIE
         if node_tag:
             tags.append(node_tag)
 
+    #Fix address 
+    tags = fixAddress.fix(tags)
+
+
     if element.tag == 'node':
         return {'node': node_attribs, 'node_tags': tags}
     elif element.tag == 'way':
@@ -270,18 +270,22 @@ def get_element(osm_file, tags=('node', 'way', 'relation')):
             root.clear()
 
 
-def validate_element(element, validator, schema=SCHEMA):
+def valid_element(element, validator, schema=SCHEMA):
     """Raise ValidationError if element does not match schema"""
+    valid = True
     if validator.validate(element, schema) is not True:
+        valid = False
         field, errors = next(validator.errors.iteritems())
         message_string = "\nElement of type '{0}' has the following errors:\n{1}"
         error_strings = (
             "{0}: {1}".format(k, v if isinstance(v, str) else ", ".join(v))
             for k, v in errors.iteritems()
         )
-        raise cerberus.ValidationError(
-            message_string.format(field, "\n".join(error_strings))
-        )
+        warnings.warn(message_string.format(field, "\n".join(error_strings)))
+        # raise cerberus.ValidationError(
+        #     message_string.format(field, "\n".join(error_strings))
+        # )
+    return valid
 
 
 class UnicodeDictWriter(csv.DictWriter, object):
@@ -327,7 +331,9 @@ def process_map(file_in, validate):
             el = shape_element(element)
             if el:
                 if validate is True:
-                    validate_element(el, validator)
+                    if not valid_element(el, validator):
+                        print "Excluding not valid element:\n", ET.tostring(element, encoding='utf-8')
+                        continue
 
                 if element.tag == 'node':
                     nodes_writer.writerow(el['node'])
@@ -341,4 +347,6 @@ def process_map(file_in, validate):
 if __name__ == '__main__':
     # Note: Validation is ~ 10X slower. For the project consider using a small
     # sample of the map when validating.
+    #OSM_PATH = "..\\data\\sample.osm"
+    OSM_PATH = "..\\data\\prague_czech-republic.osm\\prague_czech-republic.osm"
     process_map(OSM_PATH, validate=True)

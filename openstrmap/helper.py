@@ -9,6 +9,11 @@ from time import time
 from functools import partial
 import logging
 import os
+import errno
+from collections import namedtuple
+
+
+
 
 def get_logger(logfile):
     #logging.basicConfig(level=logging.DEBUG, filename=logfile, filemode='w')
@@ -49,8 +54,17 @@ def get_first_elements (inp_file, num_el):
 	lines.append(ending)
 	return lines
 
+def create_path(filepath):
+	path = os.path.dirname(filepath)
+	try: 
+		os.makedirs(path)
+	except OSError as exc:
+		if (exc.errno != errno.EEXIST) and os.path.isdir(path):
+			raise
 
-def pretty_time(time_mls):
+		
+def pretty_time(time):
+    time_mls = int(time * 1000)
     hours= time_mls//(1000*60*60)
     minutes=(time_mls//(1000*60)) % 60
     seconds=(time_mls//1000) % 60
@@ -121,6 +135,9 @@ def get_element(osm_file, tags=None):
             yield elem
             root.clear()
 
+
+###Getting and setting data in tags
+
 def get_tags_data(element, keys):
     #function iterate on all element tags and returns values correspomding to 
     #specified keys.
@@ -137,6 +154,66 @@ def get_tags_data(element, keys):
                 values[i] = value
     
     return tuple(values)
+
+def get_tags_values(tags, keys):
+    values = [None] * len(keys)
+    for tg in tags:
+        kval = tg["key"]
+        value = tg["value"]
+
+        for i, key in enumerate(keys):
+            if any([kval == k for k in key]):
+                values[i] = value
+    
+    return tuple(values)
+
+def change_tags(tags, key_values):
+    ntags = tags
+    for key, value in key_values.items():
+        found = False
+        for tg in ntags:
+            if tg["key"] == key:
+                found = True
+                tg["value"] = value
+        if not found and value:
+            new_tg = {"id" : tags[0]["id"], "key" : key, "type" : "addr", "value" : value }
+            ntags.append(new_tg)
+    return ntags
+
+#################
+
+ ###Address helper functions
+
+AddrNum = namedtuple('AddrNum', 'hsnumber, cnsnumber, prvnumber, streetnumber')
+
+def addr_dict(addr):
+    keys = ('housenumber', 'conscriptionnumber', 'provisionalnumber', 'streetnumber')
+    return dict(zip(keys, addr))
+
+cz_subst = {u'á':u'a', u'č':u'c', u'ď':u'd', u'é':u'e', u'ě':u'e', \
+             u'í':u'i', u'ň':u'n', u'ó':u'o', u'ř':u'r', u'š':u's', \
+              u'ť':u't', u'ů':u'u', u'ý':u'y', u'ž':u'z'}
+
+def capitalize(line):
+	line = line.lower()
+	return ' '.join(s[0].upper() + s[1:] for s in line.split(' '))
+
+#################
+
+def create_sample_file(datafile, samplefile, n):
+	"""
+	Creates sample data file and writes every n elemnt from datafile 
+	"""
+	with open(samplefile, 'wb') as output:
+		output.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+		output.write('<osm>\n  ')
+
+    	# Write every 10th top level element
+		for i, element in enumerate(get_element(datafile)):
+			if i % n == 0:
+				output.write(ET.tostring(element, encoding='utf-8'))
+
+		output.write('</osm>')
 
 
 
@@ -228,13 +305,13 @@ if __name__ == "__main__":
 					r'website:kam.cuni.cz'
 	]
 
- 	conditions = [partial(condition, substr = key) for key in strange_keys2]
-	with open("prch_ex2.txt", "w") as f: 
+ # 	conditions = [partial(condition, substr = key) for key in strange_keys2]
+	# with open("prch_ex2.txt", "w") as f: 
 		
 
-		text =  get_cond_elements(inp_file, 1, 4, conditions)
+	# 	text =  get_cond_elements(inp_file, 1, 4, conditions)
 		
-		f.writelines(text)
+	# 	f.writelines(text)
 
 	#TO DO:
 	# How to pass function with some arguments assigned
