@@ -195,8 +195,16 @@ cz_subst = {u'á':u'a', u'č':u'c', u'ď':u'd', u'é':u'e', u'ě':u'e', \
               u'ť':u't', u'ů':u'u', u'ý':u'y', u'ž':u'z'}
 
 def capitalize(line):
-	line = line.lower()
-	return ' '.join(s[0].upper() + s[1:] for s in line.split(' '))
+	words = line.lower().split(' ')
+	nwords = []
+	for i, word in enumerate(words):
+		nwords.append("")
+		for j, s in enumerate(word):
+			ns = s
+			if j==0: # Firts letter in a word
+				ns = s.upper()
+			nwords[i] += ns
+	return ' '.join(nwords)
 
 #################
 
