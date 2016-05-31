@@ -161,6 +161,7 @@ import xml.etree.cElementTree as ET
 import helper as hlp
 import fixaddr 
 import warnings
+from time import time
 
 import cerberus
 
@@ -185,9 +186,6 @@ WAY_TAGS_FIELDS = ['id', 'key', 'value', 'type']
 WAY_NODES_FIELDS = ['id', 'node_id', 'position']
 
 TAGS_FIELDS = ['id', 'key', 'value', 'type']
-
-fixAddress = fixaddr.FixAddress("log\\audit_strnames.log")
-
 
 
 def get_field_values(element, fields):
@@ -223,7 +221,7 @@ def get_way_node(element, root, ind,  fields):
     return values
 
 def shape_element(element, node_attr_fields=NODE_FIELDS, way_attr_fields=WAY_FIELDS,
-                  problem_chars=PROBLEMCHARS, default_tag_type='regular'):
+                  problem_chars=PROBLEMCHARS, default_tag_type='regular', fixer=None):
     """Clean and shape node or way XML element to Python dict"""
 
     node_attribs = {}
@@ -246,9 +244,8 @@ def shape_element(element, node_attr_fields=NODE_FIELDS, way_attr_fields=WAY_FIE
         if node_tag:
             tags.append(node_tag)
 
-    #Fix address 
-    tags = fixAddress.fix(tags)
-
+    if fixer: 
+        tags = fixer.fix(tags)
 
     if element.tag == 'node':
         return {'node': node_attribs, 'node_tags': tags}
@@ -304,8 +301,12 @@ class UnicodeDictWriter(csv.DictWriter, object):
 # ================================================== #
 #               Main Function                        #
 # ================================================== #
-def process_map(file_in, validate):
+def process_map(file_in, validate, logfile=None):
     """Iteratively process each XML element and write to csv(s)"""
+
+    strfix_dict = "log\\audit_strnames.log"
+    fixer = fixaddr.FixAddress(strfix_dict, logfile)
+
 
     with codecs.open(NODES_PATH, 'w') as nodes_file, \
          codecs.open(NODE_TAGS_PATH, 'w') as nodes_tags_file, \
@@ -328,7 +329,13 @@ def process_map(file_in, validate):
         validator = cerberus.Validator()
 
         for element in get_element(file_in, tags=('node', 'way')):
-            el = shape_element(element)
+            try:
+                el = shape_element(element, fixer=fixer)
+            except Exception as er:
+                print "Failed to shape the following element:\n", ET.tostring(element, encoding='utf-8')
+                print "Catched Exeption:\n", er
+                continue
+
             if el:
                 if validate is True:
                     if not valid_element(el, validator):
@@ -345,8 +352,15 @@ def process_map(file_in, validate):
 
 
 if __name__ == '__main__':
-    # Note: Validation is ~ 10X slower. For the project consider using a small
+    # Note: Validation is ~ 10X slower. For the project consider using a smallgf
     # sample of the map when validating.
+    
+    logfile = "log\\fixaddr.log"
+    
     #OSM_PATH = "..\\data\\sample.osm"
     OSM_PATH = "..\\data\\prague_czech-republic.osm\\prague_czech-republic.osm"
-    process_map(OSM_PATH, validate=True)
+    
+    start = time() 
+    process_map(OSM_PATH, validate=True, logfile=logfile)
+    elapsed = time() - start
+    print "Estimated time: ", hlp.pretty_time(elapsed) 
