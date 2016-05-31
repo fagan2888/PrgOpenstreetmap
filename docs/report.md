@@ -205,7 +205,30 @@ Audit Postcodes
 Estimated time:  0h 0min 5sec 890mls
 None
 
-
+All Data Report
+Audit House Numbers
+******************************
+{'COMPLETENESS: Missed fstnumber, streetnumber or both': 428,
+ 'COMPLETENESS: Missed hsnumber': 66,
+ 'COMPLETENESS: Missed streetnumber or fstnumber in hsnumber': 11,
+ 'CONSISTENCY: Composite hsnumber is not consistent with fstnumber and streetnumber': 12,
+ 'CONSISTENCY: One-number hsnumber is not consistent with fstnumber or streetnumber': 8,
+ 'VALIDITY: Not valid type of conscriptionnumber or provisionalnumber': 8,
+ 'VALIDITY: Not valid type of housenumber': 55,
+ 'VALIDITY: Not valid type of streetnumber': 14,
+ 'VALIDITY:Both cnsnumber and prvnumber are given': 1}
+Estimated time:  1h 27min 32sec 793mls
+None
+Audit Street Names
+******************************
+{'Mistyped street names': 8}
+Estimated time:  0h 39min 21sec 296mls
+None
+Audit Postcodes
+******************************
+{'Wrong type for post code': 7}
+Estimated time:  0h 2min 8sec 256mls
+None
 
 
 
