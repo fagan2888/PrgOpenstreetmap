@@ -7,12 +7,14 @@ import codecs
 
 
 class FixAddress:
-    def __init__(self, strn_fixfile=None):
+    def __init__(self, strn_fixfile=None, logfile=None):
         self.strn_fixdict = None
         if strn_fixfile:
             self.strn_fixdict = self.create_strn_fixdict(strn_fixfile)
-            print "fix dict"
-            print self.strn_fixdict
+        
+        self.logger = hlp.get_logger(logfile) if logfile else None
+    
+
         
         
     def create_strn_fixdict(self, fixfile):
@@ -49,10 +51,10 @@ class FixAddress:
         return any(addr)
 
     def fix(self, tags):
+        
         if not self.has_address(tags):  
             return tags
-    
-    #    tags = self.fix_strname(tags)
+        
         tags = self.fix_hsnumber(tags)
         tags = self.fix_strname(tags)
         
@@ -65,13 +67,17 @@ class FixAddress:
             return tags
 
         nstrname = strname
+        mstp_msg = ""
         if self.strn_fixdict and nstrname in self.strn_fixdict:
             nstrname = self.strn_fixdict[nstrname]
+            mstp_msg = u"(Mistyped)"
 
         nstrname = hlp.capitalize(nstrname)
         if strname != nstrname:
             hlp.change_tags(tags, {"street" : nstrname})
-        
+            if self.logger:
+                self.logger.info(u"Fix Street Name {}: {} replaced with {}".format(mstp_msg, strname, nstrname))
+            
         return tags
 
     def complete_addrnum(self, addr, msges):
@@ -113,6 +119,7 @@ class FixAddress:
                                                     ('provisionalnumber',), ('streetnumber',) \
                                                     ]) \
                             )
+
         if not any(addr):
             return tags
 
@@ -121,10 +128,13 @@ class FixAddress:
         if valid:
             compl, msges = ad.chk_complete(addr)
             if not compl:
-                naddr = self.complete_addrnum(addr, msges)            
+                naddr = self.complete_addrnum(addr, msges)
                 if ad.chk_consist(naddr):
                     ntags = hlp.change_tags(tags, hlp.addr_dict(naddr))
-        
+                    if self.logger:
+                        self.logger.info(u"Fix Address Numbers: \n" + str(tags))
+                        self.logger.info("*****************")
+                    
         return ntags
 
 

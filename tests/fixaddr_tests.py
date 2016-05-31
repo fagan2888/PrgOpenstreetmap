@@ -66,31 +66,6 @@ chktags5 = [
 		]
 
 
-
-
-# def test_change_tags_1():
-# 	key_values = {
-# 		"housenumber" : "100/10",
-# 		"streetnumber" : "10",
-# 		"conscriptionnumber" : "100"
-# 	}
-
-# 	new_tags = fixad.change_tags(tags1, key_values)
-
-# 	assert_equal(new_tags, chktags1)
-
-# def test_change_tags_2():
-	
-# 	key_values = {
-# 		"housenumber" : "ev.100/10",
-# 		"streetnumber" : "10",
-# 		"provisionalnumber" : "100"
-# 	}
-
-# 	new_tags = fixad.change_tags(tags2, key_values)
-
-# 	assert_equal(new_tags, chktags2)	
-
 fixAddress = fixad.FixAddress()
 
 def test_fix_hsnumber1():
