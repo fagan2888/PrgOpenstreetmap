@@ -17,7 +17,7 @@ def loadtodb(dbfilepath, crtdb_sql_path):
 if __name__ == "__main__":
 	dbfilepath = "..\\data\\prgstrmap.db"
 	test_dbfilepath = "..\\data\\test_prgstrmap.db"
-	crtdb_sql_path = "..\\sql\\createdb.sql"
+	crtdb_sql_path = "scripts\\createdb.sql"
 
 	loadtodb(dbfilepath, crtdb_sql_path)
 
