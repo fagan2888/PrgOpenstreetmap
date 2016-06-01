@@ -1,13 +1,12 @@
 import sqlite3
 from haversine import haversine
-import select_qwrs as qwrs
-import pprint as pp
+from time import time
+
 
 def hvrs_dist(lat1, lon1, lat2, lon2):
 	return haversine((lat1, lon1), (lat2, lon2))
 
-
-def run_queries(dbfilepath, queries, names, trg_location, top):
+def run_queries(dbfilepath, queries, outfiles):
 	""" Creates sqlite function for haversine distance calculation """
 
 	conn = sqlite3.connect(dbfilepath)
@@ -15,25 +14,62 @@ def run_queries(dbfilepath, queries, names, trg_location, top):
 	cur = conn.cursor()
 	
 	for i, q in enumerate(queries):
-		cur.execute(q.replace("LIMIT_THRSH", str(top)).replace("TRG_LAT", trg_location[0]).replace("TRG_LON", trg_location[1]) )
-		print names[i]
-		print "************************"	
-		results = cur.fetchall() 
-		for result in results:
-			print u"{}".format(result)
+		outfile = outfiles[i]
+		print "Calculating {}...".format(outfile.split(".")[0])
+		start = time()
+		cur.execute(q)
+		query_result = cur.fetchall() 
+		print "Time Elapsed: {} mls".format(time()-start)
+		print "*************************************"
+		columns = [description[0] for description in cur.description]
+		with open(outfile, "w") as f:
+			f.write(format_row(columns))
+			for row in query_result:
+				f.write(format_row(row))
+		
 
-		print "************************"	
 
+def format_row(row, delimiter=","):
+	n = len(row)
+	out = ('{}'+delimiter)*(n-1) + "{}\n"
+
+	new_row = []
+	for r in row:
+		try:
+			new_r = str(r)
+		except UnicodeEncodeError:
+			new_r = r.encode("utf-8")
+		new_row.append (new_r)
+
+	return out.format(*new_row)
 	
 
 if __name__ == "__main__":
 	dbfilepath = "..\\data\\prgstrmap.db"
 	test_dbfilepath = "..\\data\\test_prgstrmap.db"
 
+	#TO DO: Organize parameter setting in a proper way
+
 	#Define target location
 	nam_miru = ("50.075104", "14.437783")  #Location of metro station Namesti Miru
 	#mustek = ("50.083031", "14.422137") #Location of metro station Mustek
 	
-	queries = [qwrs.closest_veg_restaurants, qwrs.close_playgrounds]
-	names = ["Vegeterian Restaurants", "Playgrounds"]
-	run_queries(dbfilepath, queries, names, nam_miru, 10)
+	top = 10
+	trg_location = nam_miru
+	
+	qfiles = ['scripts\\close_veg_restaurants.sql', 
+			  'scripts\\close_playgrounds.sql', 
+			  'scripts\\district_stat.sql'
+			 ]
+
+	queries = []
+	for i, qfile in enumerate(qfiles):
+		with open(qfile) as f:
+			queries.append(f.read())
+
+	queries[0] = queries[0].replace("LIMIT_THRSH", str(top)).replace("TRG_LAT", trg_location[0]).replace("TRG_LON", trg_location[1])
+	queries[1] = queries[1].replace("LIMIT_THRSH", str(top)).replace("TRG_LAT", trg_location[0]).replace("TRG_LON", trg_location[1])
+
+	#TO DO: Create folder query_results if does not exist. Use helper function create_path
+	outfiles = ["query_results\\close_veg_restaurants.csv", "query_results\\close_playgrounds.csv", "query_results\\district_stat.csv"]
+	run_queries(dbfilepath, queries, outfiles)
