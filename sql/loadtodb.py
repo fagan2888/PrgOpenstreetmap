@@ -1,7 +1,7 @@
 import sqlite3
 from haversine import haversine
 
-def loadtodb(dbfilepath, crtdb_sql_path):
+def crtdb(dbfilepath, crtdb_sql_path):
 	""" Runs sql script to create basic tables """
 	
 	crtdb_sql = ""
@@ -15,10 +15,10 @@ def loadtodb(dbfilepath, crtdb_sql_path):
 
 
 if __name__ == "__main__":
-	dbfilepath = "..\\data\\prgstrmap.db"
-	test_dbfilepath = "..\\data\\test_prgstrmap.db"
-	crtdb_sql_path = "scripts\\createdb.sql"
+	dbfilepath = "data\\prgstrmap.db"
+	test_dbfilepath = "data\\test_prgstrmap.db"
+	crtdb_sql_path = "sql\\scripts\\createdb.sql"
 
-	loadtodb(dbfilepath, crtdb_sql_path)
+	crtdb(dbfilepath, crtdb_sql_path)
 
 	

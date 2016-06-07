@@ -6,7 +6,7 @@ import re
 import os
 from time import time
 from collections import defaultdict, namedtuple
-import helper as hlp 
+import openstrmap.helper as hlp 
 
 
 def add_stat(logger, stats, msg, tag, id, info):
@@ -225,16 +225,15 @@ def process(filename, auditors, logfiles=None, headings=None):
 
 
 if __name__ == "__main__":
-    inp_file = "..\\data\\prague_czech-republic.osm\\prague_czech-republic.osm"
-    inp_ex_file = "..\\data\\example.osm"
-    sample_file = "..\\data\\sample.osm"
+    inp_file = "data\\sample.osm"
+    #inp_file = "data\\prague_czech-republic.osm\\prague_czech-republic.osm"
     
     #Create sample file if not exist
-    if not os.path.exists(sample_file):
-        hlp.create_sample_file(inp_file, sample_file, 175)
-
+    # if not os.path.exists(sample_file):
+    #     hlp.create_sample_file(inp_file, sample_file, 175)
 
     process(inp_file, [audit_addrnum, audit_strnames, audit_postcodes],
-                       ['log\\audit_addrnum.log', 'log\\audit_strnames.log', 'log\\audit_postcodes.log' ],
+                       ['openstrmap\\log\\audit_addrnum.log', 'openstrmap\\log\\audit_strnames.log', 'openstrmap\\log\\audit_postcodes.log' ],
                        ['Audit House Numbers', 'Audit Street Names', 'Audit Postcodes'])
+
     

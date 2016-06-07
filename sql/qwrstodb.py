@@ -2,6 +2,9 @@ import sqlite3
 from haversine import haversine
 from time import time
 
+#import sys, os
+#sys.path.insert(0, os.path.abspath('..'))
+import openstrmap.helper as hlp
 
 def hvrs_dist(lat1, lon1, lat2, lon2):
 	return haversine((lat1, lon1), (lat2, lon2))
@@ -19,7 +22,7 @@ def run_queries(dbfilepath, queries, outfiles):
 		start = time()
 		cur.execute(q)
 		query_result = cur.fetchall() 
-		print "Time Elapsed: {} mls".format(time()-start)
+		print "Time Elapsed: {} mls".format(hlp.pretty_time(time()-start))
 		print "*************************************"
 		columns = [description[0] for description in cur.description]
 		with open(outfile, "w") as f:
@@ -45,8 +48,8 @@ def format_row(row, delimiter=","):
 	
 
 if __name__ == "__main__":
-	dbfilepath = "..\\data\\prgstrmap.db"
-	test_dbfilepath = "..\\data\\test_prgstrmap.db"
+	dbfilepath = "data\\prgstrmap.db"
+	test_dbfilepath = "data\\test_prgstrmap.db"
 
 	#TO DO: Organize parameter setting in a proper way
 
@@ -57,9 +60,9 @@ if __name__ == "__main__":
 	top = 10
 	trg_location = nam_miru
 	
-	qfiles = ['scripts\\close_veg_restaurants.sql', 
-			  'scripts\\close_playgrounds.sql', 
-			  'scripts\\district_stat.sql'
+	qfiles = ['sql\\scripts\\close_veg_restaurants.sql', 
+			  'sql\\scripts\\close_playgrounds.sql', 
+			  'sql\\scripts\\district_stat.sql'
 			 ]
 
 	queries = []
@@ -70,6 +73,8 @@ if __name__ == "__main__":
 	queries[0] = queries[0].replace("LIMIT_THRSH", str(top)).replace("TRG_LAT", trg_location[0]).replace("TRG_LON", trg_location[1])
 	queries[1] = queries[1].replace("LIMIT_THRSH", str(top)).replace("TRG_LAT", trg_location[0]).replace("TRG_LON", trg_location[1])
 
-	#TO DO: Create folder query_results if does not exist. Use helper function create_path
-	outfiles = ["query_results\\close_veg_restaurants.csv", "query_results\\close_playgrounds.csv", "query_results\\district_stat.csv"]
-	run_queries(dbfilepath, queries, outfiles)
+	
+	outfiles = ["sql\\query_results\\close_veg_restaurants.csv", "sql\\query_results\\close_playgrounds.csv", "sql\\query_results\\district_stat.csv"]
+	map(hlp.create_path, outfiles) #Create path if needed
+
+	run_queries(dbfilepath, queries, outfiles)	

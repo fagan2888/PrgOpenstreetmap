@@ -138,23 +138,6 @@ class FixAddress:
         return ntags
 
 
-if __name__ == "__main__":
-    fixAddress1 = FixAddress("..\\test_data\\audit_strnames.log")
-    tags9 = [
-            {"id": 1, "key": "streetnumber", "value" : "10", "type": "addr"},
-            {"id": 1, "key": "conscriptionnumber", "value" : "100", "type": "addr"},
-            {"id": 1, "key": "street", "value" : "Narodni", "type": "addr"}
-        ]
-
-    chktags9 = [
-            {"id": 1, "key": "streetnumber", "value" : "10", "type": "addr"},
-            {"id": 1, "key": "conscriptionnumber", "value" : "100", "type": "addr"},
-            {"id": 1, "key": "street", "value" : "Národní", "type": "addr"},
-            {"id": 1, "key": "housenumber", "value" : "100/10", "type": "addr"}
-        ]
-    
-    new_tags9 = fixAddress1.fix(tags9)
-    print new_tags9
 
 
 
