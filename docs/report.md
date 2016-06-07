@@ -35,7 +35,7 @@ Below you can find some examples of problematic data.
 In the next example two different addresses were mixed for the same element. This address is not valid. 
 
 |id|key|value|type|
-|---------------------------------------------------|
+|--|---|-----|----|
 |296510460|	conscriptionnumber|	134;1301     |	addr|
 |296510460|	housenumber       |	134/16;1301/4|	addr|
 |296510460|	postcode	|14000	|addr|
@@ -46,7 +46,7 @@ In the next example two different addresses were mixed for the same element. Thi
 In this example housenumber is not complete and does not include conscriptionnumber, complete housenumber here will be 1008/22
 
 |id|key|value|type|
-|---------------------------------------------------|
+|--|---|-----|----|
 |296550228|	conscriptionnumber|	1008|	addr|
 |296550228|	housenumber|	22	|addr|
 |296550228|	postcode|	11000|	addr|
@@ -170,11 +170,11 @@ Audit Postcodes
 
 ## Data Exploration
 
-In this section data is explored with the help of SQL queries. All SQL queries are stores in separate .sql files in /sql/scripts. Queries are run with Python DB Api, results are stored in corresponding csv files in /sql/query_results.
+In this section data is explored with the help of SQL queries. All SQL queries are stored in separate .sql files in /sql/scripts. Queries are run with Python DB Api, results are stored in corresponding csv files in /sql/query_results.
 
-###Find Vegeterian Restaurants
+###Find Vegetarian Restaurants
 
-I like vegeterian restaurants and I would like to know which restaurants are the closest to my house location. In order to get this information I need a function which calculates distance between two points, defined by pairs of lattitudes and longitudes. SQLite does not have a stored function/stored procedure language, as an alteranative python DB API can be used.
+I like vegetarian restaurants and I would like to know which restaurants are the closest to my house location. In order to get this information I need a function which calculates distance between two points, defined by pairs of latitudes and longitudes. SQLite does not have a stored function/stored procedure language, as an alternative python DB API can be used.
 
 Python package sqlite3 provides function 'create_function', which creates a user-defined function that can later be used from within SQL statements. 
 
@@ -223,7 +223,7 @@ LEFT JOIN nodes_tags N4 ON (N1.id = N4.id
 WHERE N1.key = "name"
 ORDER BY dist LIMIT LIMIT_THRSH
 ```
-Example of 10 vegeterian restaurants closest to the metro station Namesti Miru (LIMIT_THRSH=10, TRG_LAT=50.075104, TRG_LON=14.437783):
+Example of 10 vegetarian restaurants closest to the metro station Namesti Miru (LIMIT_THRSH=10, TRG_LAT=50.075104, TRG_LON=14.437783):
 
 |id|restaurant|street|hsnumber|phone|dist (km)|
 |--------|--------|-----|-------|-----------|-----------|
@@ -240,7 +240,7 @@ Example of 10 vegeterian restaurants closest to the metro station Namesti Miru (
 
 ###Find Playgrounds
 
-For every parent who have small kids it is good to know where the closest playgrounds are located. The following SQL query template can help with that. It selects fixed number (LIMIT_THRSH) of playgrounds closest to specified location (TRG_LAT, TRG_LON):
+All parents who have small kids would like to know where the closest playgrounds are located. The following SQL query template can help with that. It selects fixed number (LIMIT_THRSH) of playgrounds closest to specified location (TRG_LAT, TRG_LON):
 
 ```sql
 SELECT A.id,
@@ -270,8 +270,8 @@ ORDER BY dist LIMIT LIMIT_THRSH
 ```
 Example of 5 playgrounds closest to the metro station Namesti Miru (LIMIT_THRSH=5, TRG_LAT=50.075104, TRG_LON=14.437783):
 
-|id|playground|lat|lon|dist(km)|
-|--------------------------|
+|id |playground|lat|lon|dist(km)|
+|---|----------|---|---|--------|
 |115511512|None|50.0725020625|14.44522195|0.604600014152|
 |28254035|Horní hřiště|50.0706216333|14.4444128583|0.687232605664|
 |284577445|U Vodárny|50.07587525|14.448337225|0.758041834989|
@@ -281,7 +281,7 @@ Example of 5 playgrounds closest to the metro station Namesti Miru (LIMIT_THRSH=
 
 ###District Statistics
 
-Here we will calculate some statistics for different Prague districs. District number is extracted from postcode.
+Here are some statistics for different Prague districs. District number is extracted from the postcode.
 
 ```sql
 SELECT PC.code,
@@ -339,7 +339,7 @@ LEFT JOIN
 Query result:
 
 |District|# Restaurants|# Bars|# Supermarkets|# Tourist Objects|
-|-----------------------------------------------------------|
+|--------|-------------|------|--------------|-----------------|
 |10|60|13|4|10|
 |11|327|56|12|171|
 |12|122|37|4|75|
@@ -354,6 +354,10 @@ Query result:
 We can see that central districts like Prague 1(11) and Prague 2(12) have much more tourist objects, number of restaurants and bars is also higher than in other districts.
 
 ##Conclusion
+
+The OpenStreetMap data provides a lot of useful information which can be incorporated into different projects and applications. However since this data is open for different contributors, it is prone to errors and requires careful cleaning.
+In this project I have performed detailed audit of address information and  implemented a few cleaning strategies.
+
 
 
 
