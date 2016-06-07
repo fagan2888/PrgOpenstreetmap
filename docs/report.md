@@ -35,7 +35,7 @@ Below you can find some examples of problematic data.
 In the next example two different addresses were mixed for the same element. This address is not valid. 
 
 |id|key|value|type|
-|--|---|-----|----|
+|-----------|--------------|---------------|--------|
 |296510460|	conscriptionnumber|	134;1301     |	addr|
 |296510460|	housenumber       |	134/16;1301/4|	addr|
 |296510460|	postcode	|14000	|addr|
@@ -46,7 +46,7 @@ In the next example two different addresses were mixed for the same element. Thi
 In this example housenumber is not complete and does not include conscriptionnumber, complete housenumber here will be 1008/22
 
 |id|key|value|type|
-|--|---|-----|----|
+|-----------|--------------|---------------|--------|
 |296550228|	conscriptionnumber|	1008|	addr|
 |296550228|	housenumber|	22	|addr|
 |296550228|	postcode|	11000|	addr|
@@ -271,7 +271,7 @@ ORDER BY dist LIMIT LIMIT_THRSH
 Example of 5 playgrounds closest to the metro station Namesti Miru (LIMIT_THRSH=5, TRG_LAT=50.075104, TRG_LON=14.437783):
 
 |id |playground|lat|lon|dist(km)|
-|---|----------|---|---|--------|
+|----------|--------------|----------|------------|-------------|
 |115511512|None|50.0725020625|14.44522195|0.604600014152|
 |28254035|Horní hřiště|50.0706216333|14.4444128583|0.687232605664|
 |284577445|U Vodárny|50.07587525|14.448337225|0.758041834989|
