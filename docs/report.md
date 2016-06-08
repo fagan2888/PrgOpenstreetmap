@@ -16,9 +16,9 @@ House numbering system in Czech Republic is quite complicated, two numbering sys
 The basic house number is the "old" or "descriptive number" . The descriptive number is unique within the municipal part (a village, a quarter, mostly for one cadastral area) or within a whole small municipality. In most cities there are used also the "new" or "orientation numbers". The orientation numbers are arranged sequentially within the street or square. If the building is on a corner or has two sides, it can have two or more orientation numbers, one for each of the adjacent streets or squares. Typical house number in Prague contains two numbers, which are written divided by slash, e.g. 593/5.
 
 More detailed information can be found here:
-https://wiki.openstreetmap.org/wiki/Template:CzechAddress
-https://wiki.openstreetmap.org/wiki/Cs:WikiProject_Czech_Republic/Address_system
-https://en.wikipedia.org/wiki/House_numbering
+https://wiki.openstreetmap.org/wiki/Template:CzechAddress,
+https://wiki.openstreetmap.org/wiki/Cs:WikiProject_Czech_Republic/Address_system,
+https://en.wikipedia.org/wiki/House_numbering.
 
 It comes as no surprise that a lot of problems and errors were detected in address information.
 
@@ -123,7 +123,7 @@ def is_equalmstp(strname1, strname2):
 ```
 All pairs where one street name were probably mistyped were identified. Actually there are examples of street names which can be considered as mistyped according to this logic , but in reality are correct names. As additional check I used postcodes. If two different street names have the same Latin spelling and the same postcodes, then probably one street name was mistyped. 
 
-We will fix these errors and use the right version of a street name. We assume that the right version is the one, which contain more "special Czech symbols". During the audit procedure all these candidates are loged in a separate file, so one can manually check and edit this list before running correction procedures.
+We will fix these errors and use the right version of a street name. We assume that the right version is the one, which contain more "special Czech symbols". During the audit procedure all these candidates are logged in a separate file, so one can manually check and edit this list before running correction procedures.
 
 Another problem related to street names - different case letters, some examples are presented below:
 
@@ -145,7 +145,7 @@ Estimated time:  0h 59min 15sec 378mls
 
 ###Audit Postcodes
 
-In Prague postcodes have 5 digits and start from 1, second digit defines district of the city. 
+All Prague postcodes have 5 digits and start from 1, second digit defines district of the city. 
 For example address with postcode 12000 is in the city district "Prague 2". However there
  are some non-Prague postcodes, which correspond to villages close to the city.
 
@@ -161,8 +161,9 @@ Postcode validity is checked using the following simple regex expression:
 patt = r'^[1-9][0-9]{4}$' 
 ```
 
-```sh
 Audit report for the whole data set:
+
+```sh
 Audit Postcodes
 ******************************
 {'Wrong type for post code': 7}
@@ -170,7 +171,7 @@ Audit Postcodes
 
 ## Data Exploration
 
-In this section data is explored with the help of SQL queries. All SQL queries are stored in separate .sql files in /sql/scripts. Queries are run with Python DB Api, results are stored in corresponding csv files in /sql/query_results.
+In this section data is explored with the help of SQL queries. All SQL queries are stored in separate .sql files in /sql/scripts. Queries are run with Python DB API, results are stored in corresponding csv files in /sql/query_results.
 
 ###Find Vegetarian Restaurants
 
@@ -179,10 +180,8 @@ I like vegetarian restaurants and I would like to know which restaurants are the
 Python package sqlite3 provides function 'create_function', which creates a user-defined function that can later be used from within SQL statements. 
 
 ```python
-	...
 	conn = sqlite3.connect(dbfilepath)
 	conn.create_function("distance", 4, hvrs_dist)
-	...
 ```
 
 Function hvrs_dist uses external python package haversine and is defined as follows:
@@ -223,7 +222,7 @@ LEFT JOIN nodes_tags N4 ON (N1.id = N4.id
 WHERE N1.key = "name"
 ORDER BY dist LIMIT LIMIT_THRSH
 ```
-Example of 10 vegetarian restaurants closest to the metro station Namesti Miru (LIMIT_THRSH=10, TRG_LAT=50.075104, TRG_LON=14.437783):
+Example of 10 vegetarian restaurants closest to the metro station Náměstí Míru (LIMIT_THRSH=10, TRG_LAT=50.075104, TRG_LON=14.437783):
 
 |id|restaurant|street|hsnumber|phone|dist (km)|
 |--------|--------|-----|-------|-----------|-----------|
@@ -268,7 +267,7 @@ LEFT JOIN ways_tags B ON (A.id = B.id
                           AND B.key="name")
 ORDER BY dist LIMIT LIMIT_THRSH
 ```
-Example of 5 playgrounds closest to the metro station Namesti Miru (LIMIT_THRSH=5, TRG_LAT=50.075104, TRG_LON=14.437783):
+Example of 5 playgrounds closest to the metro station Náměstí Míru (LIMIT_THRSH=5, TRG_LAT=50.075104, TRG_LON=14.437783):
 
 |id |playground|lat|lon|dist(km)|
 |----------|--------------|----------|------------|-------------|
