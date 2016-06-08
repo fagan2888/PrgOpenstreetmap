@@ -173,6 +173,35 @@ Audit Postcodes
 
 In this section data is explored with the help of SQL queries. All SQL queries are stored in separate .sql files in /sql/scripts. Queries are run with Python DB API, results are stored in corresponding csv files in /sql/query_results.
 
+### Overview Dataset Statistics 
+
+Number of nodes
+
+```sql
+select count(*) from nodes
+
+>> 7870968
+
+```
+Number of ways
+
+```sql
+select count(*) from ways
+
+>>899272
+```
+
+Number of unique users
+
+```sql
+select count(distinct uid) from
+(select uid from nodes
+union
+select uid from ways)
+
+>>2362
+
+```
 ###Find Vegetarian Restaurants
 
 I like vegetarian restaurants and I would like to know which restaurants are the closest to my house location. In order to get this information I need a function which calculates distance between two points, defined by pairs of latitudes and longitudes. SQLite does not have a stored function/stored procedure language, as an alternative python DB API can be used.
