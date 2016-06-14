@@ -49,8 +49,8 @@ def chk_valid(addr):
             bool: True if valid, False otherwise.
             list of strings: a list of error messages, empty list if address is valid
     """
-    strpatt = r'^[1-9][0-9]*[a-zA-Z]?$'
-    fstpatt = r'^[1-9][0-9]*$'
+    strpatt = r'^[1-9]\d*[a-zA-Z]?$'
+    fstpatt = r'^[1-9]\d*$'
     hsnpatt =r'^(?:ev.)?(fstpatt)/(strpatt)$|^(?:ev.)?(fstpatt)$|^(strpatt)$'
     #replace with re expessions without first and last symbols, which indicate
     #beginning and ending of the line
