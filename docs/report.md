@@ -1,6 +1,11 @@
 #Prague OpenStreetsMap Project
 
-###Map Area
+
+[TOC]
+
+
+
+##Map Area
 
 Prague, Czech Republic.
 
@@ -156,9 +161,19 @@ Examples of invalid postcodes
  1051
  ```
 
-Postcode validity is checked using the following simple regex expression:
+Postcode validity is checked using the following simple regular expression:
 ```python
-patt = r'^[1-9][0-9]{4}$' 
+patt = r'^[1-9]\d{4}$' 
+```
+
+In some cases it is possible to extract valid postal code from given invalid data. For example we can extract postal code '13000' from 'CZ - 130 00' and '12000' from '12000 Praha 7'.
+
+This extraction procedure was accomplished with the following regular expression:
+```python
+patt = r'^(?:.*\D)?([1-9]\d{4})(?:\D.*)?$'
+```
+
+Another encountered issue is spaces in postcodes. Since most postcodes do not contain any spaces,  all valid postcodes were standardized to the format without spaces.
 ```
 
 Audit report for the whole data set:
@@ -173,7 +188,9 @@ Audit Postcodes
 
 In this section data is explored with the help of SQL queries. All SQL queries are stored in separate .sql files in /sql/scripts. Queries are run with Python DB API, results are stored in corresponding csv files in /sql/query_results.
 
-### Overview Dataset Statistics 
+### Overview of Dataset Statistics
+
+The size of the uncompressed XML file is 1.67 GB.
 
 Number of nodes
 
@@ -386,6 +403,25 @@ We can see that central districts like Prague 1(11) and Prague 2(12) have much m
 The OpenStreetMap data provides a lot of useful information which can be incorporated into different projects and applications. However since this data is open for different contributors, it is prone to errors and requires careful cleaning.
 In this project I have performed detailed audit of address information and  implemented a few cleaning strategies.
 
+As an example I suggest using OpenStreepMap data for building a database of restaurants and other eating places.
+Besides location and contacts it will also include information about outdoor seating areas, smoking and non-smoking areas, cuisine, opening hours and etc.
+An application based on this database can be used for simple search by one or more criteria or search based on current location. Being connected to some rating resources (like trip adviser and others) it can also be used as a recommendation system.
 
+The following tags will be useful in building restaurant database:
+```sh
+outdoor_seating=yes/no
+leisure=outdoor_seating
+smoking=*
+cuisine=*
+opening_hours=*
+```
+
+Using 'opening_hours' tag actually is not straightforward. There is no standard format for this tag, so all cases should be parsed and standardized. More convenient approach is to create a separate table, which will include restaurant id, weekday, start_hour and end_hour.
+
+Cuisine values are also should be standardized and possibly stored in a separate tables (one table will list all possible cuisines (cuisine id, cuisine name) and another table will link restaurant id and cuisine id)
+
+Integration with rating resources will possibly raise a lot of problems. It can be quite complicated to match restaurants simply by name, so contact information may also be involved.
+
+The real power behind such applications is the data it uses. The more detailed map data is available, the more helpful is the application. This application can also include an easy interface for inputting information about restaurants. This data than should be processed, cleaned, tagged and then added to OpenStreetMap database. This could engage more people in contribution process.
 
 
