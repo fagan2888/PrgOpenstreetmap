@@ -79,6 +79,14 @@ def test_chk_consist():
     assert_equal(results[13][0], False )
     assert_equal(results[13][1], ["CONSISTENCY: Composite hsnumber is not consistent with fstnumber and streetnumber"])
 
+def test_audit_postcodes():
+
+    test_filename = 'test_data\\test_audit_postcodes.osm'
+    stats = ad.audit_postcodes(test_filename)
+    assert_equal(stats["Valid postcode has extra spaces"], 1)
+    assert_equal(stats["Wrong type for post code"], 1)
+    assert_equal(stats["Wrong range for post code"], 1)
+    assert_equal(len(stats), 3)
 
 
 
