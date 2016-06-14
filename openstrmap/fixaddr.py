@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import auditaddr as ad
-import helper as hlp
+import openstrmap.helper as hlp
 import re
 import codecs
 
@@ -18,6 +18,8 @@ class FixAddress:
         
         
     def create_strn_fixdict(self, fixfile):
+        """ Parse audit log file and return a dictionary with format {mistyped street name : correct street name} """
+        
         fixing_dict = {}
         patt = r'Mistyped street names \(\S*,\S*\): \((\S+),(\S+)\)'
         with codecs.open(fixfile, encoding='utf-8') as f:
@@ -31,6 +33,9 @@ class FixAddress:
         return fixing_dict
 
     def fix_mstp_strname(self, strname1, strname2):
+        """ Take two steet names and define which one is mistyped. Return a pair of street 
+            names where the first one is mistyped and the second one is correct.
+        """
         cz_symb = hlp.cz_subst.keys()
         cznum1 = sum([1 for s in strname1.lower() if s in cz_symb])
         cznum2 = sum([1 for s in strname2.lower() if s in cz_symb])
@@ -46,22 +51,49 @@ class FixAddress:
     def has_address(self, tags):
         addr = hlp.get_tags_values(tags, [('housenumber',), ('conscriptionnumber',), \
                                           ('provisionalnumber',), ('streetnumber',), \
-                                          ('street',) \
+                                          ('street',), ('postcode',) \
                                         ])
         return any(addr)
 
     def fix(self, tags):
-        
+        """ Fix house numbers, street names and postcodes """
         if not self.has_address(tags):  
             return tags
         
         tags = self.fix_hsnumber(tags)
         tags = self.fix_strname(tags)
-        
+        tags = self.fix_postcodes(tags)
 
         return tags
 
+    def fix_postcodes(self, tags):
+        """ Fix postcodes: remove spaces in valid postcodes, extract valid postcode from the text """
+        patt = r'^(?:.*\D)?([1-9]\d{4})(?:\D.*)?$'
+        ntags = tags
+    
+        (pcode,) = hlp.get_tags_values(tags, [("postcode",)])
+        if not pcode:
+            return tags
+
+        valid, msges = ad.chk_valid_postcode(pcode)
+        if not valid:
+            pcode_strp = pcode.replace(" ", "")
+            if msges == ["Valid postcode has extra spaces"]:
+                # Replace spaces 
+                ntags = hlp.change_tags(tags, {"postcode" : pcode_strp})
+                if self.logger:
+                        self.logger.info(u"Remove Spaces from Postcode: {} replaced with {}}".format(pcode, pcode_strp))
+            else: 
+                new_pcode = re.findall(patt, pcode_strp)
+                if new_pcode:
+                    ntags = hlp.change_tags(tags, {"postcode" : new_pcode[0]})
+                    if self.logger:
+                        self.logger.info(u"Fix Postcode: {} replaced with {}}".format(pcode, new_pcode[0]))
+                        
+        return ntags
+
     def fix_strname(self, tags):
+        """ Fix street name mistypes and uniform street name format """
         (strname,) = hlp.get_tags_values(tags, [("street",)])
         if not strname:
             return tags
@@ -81,6 +113,9 @@ class FixAddress:
         return tags
 
     def complete_addrnum(self, addr, msges):
+        """ Complete address house numbers in order all parts be included:  
+            cnsnumber or prvnumber, streetnumber and hsnumber
+        """
         (hsnumber, cnsnumber, prvnumber,streetnumber) = addr
         for msg in msges:
             if msg == "COMPLETENESS: Missed hsnumber":
@@ -115,6 +150,7 @@ class FixAddress:
         return hlp.AddrNum(hsnumber, cnsnumber, prvnumber,streetnumber)
 
     def fix_hsnumber(self, tags):
+        """ Fix completeness problems in address house numbers """
         addr = hlp.AddrNum._make(hlp.get_tags_values(tags, [('housenumber',), ('conscriptionnumber',), \
                                                     ('provisionalnumber',), ('streetnumber',) \
                                                     ]) \
@@ -137,6 +173,7 @@ class FixAddress:
                     
         return ntags
 
+    
 
 
 
