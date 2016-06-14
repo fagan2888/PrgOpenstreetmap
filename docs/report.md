@@ -1,10 +1,5 @@
 #Prague OpenStreetsMap Project
 
-
-[TOC]
-
-
-
 ##Map Area
 
 Prague, Czech Republic.
