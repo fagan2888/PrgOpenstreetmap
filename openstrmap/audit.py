@@ -5,14 +5,11 @@ import pprint as pp
 import re
 from time import time
 from collections import defaultdict
-from helper import get_element, pretty_time, get_logger, show_unicode, is_sequence, get_tags_data
-#import codecs
+import  openstrmap.helper as hlp 
 from collections import namedtuple
 
 def count_tags(element, counts):
-    """
-    Count number of elemensts of specified tag 
-    """
+    """ Count number of elemensts of specified tag """
     tag = element.tag
     counts[tag] = counts[tag] + 1
     return counts
@@ -24,6 +21,7 @@ problemchars = re.compile(r'[=\+/&<>;\'"\?%#$@\,\. \t\r\n]')
 
 
 def audit_key_type(element, keys):
+    """ Count number of tag key attributes which contain defined problem chars and colons """
     if element.tag == "tag":
         k_val = element.attrib["k"]
         lbls = [ "lower_colon" ,"lower"]
@@ -38,7 +36,7 @@ def audit_key_type(element, keys):
                 return keys
         
         keys["other"] = keys["other"] + 1
-        #print "kval: {}, lbl: {}".format(k_val, "other")
+        
     return keys
 
 
@@ -56,7 +54,7 @@ class   DataAuditor(object):
     def audit(self, filename):
         timing = {key : 0 for key in self._names}
         audit_result = {name: defaultdict(int) for name in self._names }
-        for element in get_element(filename):
+        for element in hlp.get_element(filename):
             for i, auditor in enumerate(self._auditors):
                 name = self._names[i]
                 start = time()
@@ -67,55 +65,21 @@ class   DataAuditor(object):
         return audit_result, timing
 
 
-
- 
-
-
-
-
-
 if __name__ == "__main__":
-    inp_file = "..\\data\\prague_czech-republic.osm\\prague_czech-republic.osm"
-    inp_ex_file = "..\\data\\example.osm"
+    inp_file = "data\\sample.osm"
     
-    # auditor = DataAuditor([count_tags, audit_key_type], ["count_tags", "audit_key_type"])
-    # audit_result, timing = auditor.audit(inp_ex_file)
-    # separator = "***********************************"
-    # print "Audit Report"
-    # print separator
-    # for audit_type, result in audit_result.items():        
-    #     print audit_type
-    #     print separator
-    #     pp.pprint({k: v for k,v in result.items()}, width=1)
-    #     print "Estimated time: ", get_pretty_time(timing[audit_type])
-    #     print separator
+    auditor = DataAuditor([count_tags, audit_key_type], ["count_tags", "audit_key_type"])
+    audit_result, timing = auditor.audit(inp_file)
+    separator = "***********************************"
+    print "Audit Report"
+    print separator
+    for audit_type, result in audit_result.items():        
+        print audit_type
+        print separator
+        pp.pprint({k: v for k,v in result.items()}, width=1)
+        print "Estimated time: ", hlp.pretty_time(timing[audit_type])
+        print separator
 
-    #stats = audit_street_names(inp_ex_file, 'prch_street.txt', 'mstp_street.txt', 'lw_street.txt')
-    stats = audit_street_num(inp_ex_file, 'audit_strnum.log')
-    print "Audit House Numbers"
-    print "*********************"
-    pp.pprint(dict(stats))
-
-    stats = audit_street_names(inp_ex_file, 'audit_strname.log')
-    print "*********************"
-    pp.pprint(dict(stats))
-    
-    # with codecs.open('similar_names.txt', 'w', encoding='utf-8') as f:
-    #     for names in similar_names:
-    #         #line = ",".join([name.encode('utf-8') for name in names])
-    #         line = ",".join(names)
-
-    #         f.write(line)#  .decode('utf-8')) 
-    #         f.write('\n')
-
-
-    # print "Nodes results:"
-    # for msg, ids in nodes_res.items():
-    #     print msg, len(ids)
-
-    # print "Ways results:"
-    # for msg, ids in ways_res.items():
-    #     print msg, len(ids)
 
 
 

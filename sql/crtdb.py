@@ -1,8 +1,7 @@
 import sqlite3
-from haversine import haversine
 
 def crtdb(dbfilepath, crtdb_sql_path):
-	""" Runs sql script to create basic tables """
+	""" Run sql script to create basic tables """
 	
 	crtdb_sql = ""
 	with open(crtdb_sql_path) as f:

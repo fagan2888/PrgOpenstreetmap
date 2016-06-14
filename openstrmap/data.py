@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 
-import csv
 import codecs
 import re
 import xml.etree.cElementTree as ET
@@ -36,12 +35,28 @@ TAGS_FIELDS = ['id', 'key', 'value', 'type']
 
 
 def get_field_values(element, fields):
+    """ Return a list of values corresponding to specified element fields """
     values = {}
     for field in fields:
         values[field] = element.attrib.get(field)
     return values
 
-def get_node_tag(element, root, fields):
+def get_node_tag(element, root):
+    """ Process tag element and return a dictionary with specified tag attributes. 
+
+    Args:
+    element (ET.Element): tag element for processing
+    root (ET.Element): top level tag of element
+    
+    Returns:
+    Dictionary with the following keys and values:
+        - id: the top level node id attribute value
+        - key: the full tag "k" attribute value if no colon is present or the characters after the colon if one is
+        - value: the tag "v" attribute value
+        - type: either the characters before the colon in the tag "k" value or "regular" if a colon is not present.
+    If key contains PROBLEMCHARS returns None
+
+    """
     values = {}
     values["id"] = root.attrib.get("id")
     key = element.attrib.get("k")
@@ -60,7 +75,22 @@ def get_node_tag(element, root, fields):
     
     return values
 
-def get_way_node(element, root, ind,  fields):
+def get_way_node(element, root, ind):
+    """  Process tag element and return a dictionary with specified attributes
+    
+    Args:
+    element (ET.Element): tag element for processing
+    root (ET.Element): the top level element (way)
+    ind (int): the index starting at 0 of the nd tag i.e. what order the nd tag appears within
+            the way element
+    
+
+    Returns:
+    Dictionary with the following fields:
+        - id: the top level element (way) id
+        - node_id: the ref attribute value of the nd tag
+        - position: ind
+    """
     values = {}
     values["id"] = root.attrib.get("id")
     values["node_id"] = element.attrib.get("ref")
@@ -82,12 +112,12 @@ def shape_element(element, node_attr_fields=NODE_FIELDS, way_attr_fields=WAY_FIE
         way_attribs = get_field_values(element, WAY_FIELDS)
         ind = 0
         for tg in element.iter("nd"):
-            way_node = get_way_node(tg, element, ind, WAY_NODES_FIELDS)
+            way_node = get_way_node(tg, element, ind)
             way_nodes.append(way_node)
             ind = ind + 1 
 
     for tg in element.iter("tag"):
-        node_tag = get_node_tag(tg, element, TAGS_FIELDS)
+        node_tag = get_node_tag(tg, element)
         if node_tag:
             tags.append(node_tag)
 
@@ -99,23 +129,8 @@ def shape_element(element, node_attr_fields=NODE_FIELDS, way_attr_fields=WAY_FIE
     elif element.tag == 'way':
         return {'way': way_attribs, 'way_nodes': way_nodes, 'way_tags': tags}
 
-
-# ================================================== #
-#               Helper Functions                     #
-# ================================================== #
-def get_element(osm_file, tags=('node', 'way', 'relation')):
-    """Yield element if it is the right type of tag"""
-
-    context = ET.iterparse(osm_file, events=('start', 'end'))
-    _, root = next(context)
-    for event, elem in context:
-        if event == 'end' and elem.tag in tags:
-            yield elem
-            root.clear()
-
-
 def valid_element(element, validator, schema=SCHEMA):
-    """Raise ValidationError if element does not match schema"""
+    """Raise warning if element does not match schema"""
     valid = True
     if validator.validate(element, schema) is not True:
         valid = False
@@ -126,23 +141,9 @@ def valid_element(element, validator, schema=SCHEMA):
             for k, v in errors.iteritems()
         )
         warnings.warn(message_string.format(field, "\n".join(error_strings)))
-        # raise cerberus.ValidationError(
-        #     message_string.format(field, "\n".join(error_strings))
-        # )
     return valid
 
 
-class UnicodeDictWriter(csv.DictWriter, object):
-    """Extend csv.DictWriter to handle Unicode input"""
-
-    def writerow(self, row):
-        super(UnicodeDictWriter, self).writerow({
-            k: (v.encode('utf-8') if isinstance(v, unicode) else v) for k, v in row.iteritems()
-        })
-
-    def writerows(self, rows):
-        for row in rows:
-            self.writerow(row)
 
 
 # ================================================== #
@@ -160,15 +161,15 @@ def process_map(file_in, validate, strfix_dict, logfile=None):
          codecs.open(WAY_NODES_PATH, 'w') as way_nodes_file, \
          codecs.open(WAY_TAGS_PATH, 'w') as way_tags_file:
 
-        nodes_writer = UnicodeDictWriter(nodes_file, NODE_FIELDS)
-        node_tags_writer = UnicodeDictWriter(nodes_tags_file, NODE_TAGS_FIELDS)
-        ways_writer = UnicodeDictWriter(ways_file, WAY_FIELDS)
-        way_nodes_writer = UnicodeDictWriter(way_nodes_file, WAY_NODES_FIELDS)
-        way_tags_writer = UnicodeDictWriter(way_tags_file, WAY_TAGS_FIELDS)
+        nodes_writer = hlp.UnicodeDictWriter(nodes_file, NODE_FIELDS)
+        node_tags_writer = hlp.UnicodeDictWriter(nodes_tags_file, NODE_TAGS_FIELDS)
+        ways_writer = hlp.UnicodeDictWriter(ways_file, WAY_FIELDS)
+        way_nodes_writer = hlp.UnicodeDictWriter(way_nodes_file, WAY_NODES_FIELDS)
+        way_tags_writer = hlp.UnicodeDictWriter(way_tags_file, WAY_TAGS_FIELDS)
 
         validator = cerberus.Validator()
 
-        for element in get_element(file_in, tags=('node', 'way')):
+        for element in hlp.get_element(file_in, tags=('node', 'way')):
             try:
                 el = shape_element(element, fixer=fixer)
             except Exception as er:
@@ -195,13 +196,13 @@ if __name__ == '__main__':
     # Note: Validation is ~ 10X slower. For the project consider using a smallgf
     # sample of the map when validating.
     
-    logfile = "openstrmap\\log_sample\\fixaddr.log"
+    logfile = "openstrmap\\log_smpl\\fixaddr.log"
     hlp.create_path(logfile)
     
     OSM_PATH = "data\\sample.osm"
     #OSM_PATH = "data\\prague_czech-republic.osm\\prague_czech-republic.osm"
     
-    # Log file containig mistyped street names
+    # Log file containig mistyped street names, this list is used for furhter correction
     strfix_dict = "openstrmap\\log\\audit_strnames.log" 
     
     start = time() 

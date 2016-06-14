@@ -10,7 +10,9 @@ def hvrs_dist(lat1, lon1, lat2, lon2):
 	return haversine((lat1, lon1), (lat2, lon2))
 
 def run_queries(dbfilepath, queries, outfiles):
-	""" Creates sqlite function for haversine distance calculation """
+	""" Create sqlite function for haversine distance calculation and run queries,
+		save results to specified files.
+	"""
 
 	conn = sqlite3.connect(dbfilepath)
 	conn.create_function("distance", 4, hvrs_dist)
@@ -33,6 +35,7 @@ def run_queries(dbfilepath, queries, outfiles):
 
 
 def format_row(row, delimiter=","):
+	""" Return the row in a string format """
 	n = len(row)
 	out = ('{}'+delimiter)*(n-1) + "{}\n"
 
@@ -51,8 +54,7 @@ if __name__ == "__main__":
 	dbfilepath = "data\\prgstrmap.db"
 	test_dbfilepath = "data\\test_prgstrmap.db"
 
-	#TO DO: Organize parameter setting in a proper way
-
+	
 	#Define target location
 	nam_miru = ("50.075104", "14.437783")  #Location of metro station Namesti Miru
 	#mustek = ("50.083031", "14.422137") #Location of metro station Mustek
@@ -75,6 +77,6 @@ if __name__ == "__main__":
 
 	
 	outfiles = ["sql\\query_results\\close_veg_restaurants.csv", "sql\\query_results\\close_playgrounds.csv", "sql\\query_results\\district_stat.csv"]
-	map(hlp.create_path, outfiles) #Create path if needed
-
+	#Create path if needed
+	map(hlp.create_path, outfiles) 
 	run_queries(dbfilepath, queries, outfiles)	
