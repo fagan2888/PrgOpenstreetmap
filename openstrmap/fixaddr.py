@@ -68,7 +68,8 @@ class FixAddress:
 
     def fix_postcodes(self, tags):
         """ Fix postcodes: remove spaces in valid postcodes, extract valid postcode from the text """
-        patt = r'^(?:.*\D)?([1-9]\d{4})(?:\D.*)?$'
+        #patt = r'^(?:.*\D)?([1-9]\d{4})(?:\D.*)?$'
+        patt = r'^(?:.*\D)?([1-9](?:\s?\d\s?){4})(?:\D.*)?'
         ntags = tags
     
         (pcode,) = hlp.get_tags_values(tags, [("postcode",)])
@@ -84,11 +85,12 @@ class FixAddress:
                 if self.logger:
                         self.logger.info(u"Remove Spaces from Postcode: {} replaced with {}}".format(pcode, pcode_strp))
             else: 
-                new_pcode = re.findall(patt, pcode_strp)
-                if new_pcode:
-                    ntags = hlp.change_tags(tags, {"postcode" : new_pcode[0]})
+                m = re.findall(patt, pcode)
+                if m:
+                    new_pcode = m[0].replace(" ", "")
+                    ntags = hlp.change_tags(tags, {"postcode" : new_pcode})
                     if self.logger:
-                        self.logger.info(u"Fix Postcode: {} replaced with {}}".format(pcode, new_pcode[0]))
+                        self.logger.info(u"Fix Postcode: {} replaced with {}}".format(pcode, new_pcode))
                         
         return ntags
 

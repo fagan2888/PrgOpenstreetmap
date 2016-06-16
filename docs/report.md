@@ -165,7 +165,7 @@ In some cases it is possible to extract valid postal code from given invalid dat
 
 This extraction procedure was accomplished with the following regular expression:
 ```python
-patt = r'^(?:.*\D)?([1-9]\d{4})(?:\D.*)?$'
+patt = r'^(?:.*\D)?([1-9](?:\s?\d\s?){4})(?:\D.*)?'
 ```
 
 Another encountered issue is spaces in postcodes. Since most postcodes do not contain any spaces,  all valid postcodes were standardized to the format without spaces.

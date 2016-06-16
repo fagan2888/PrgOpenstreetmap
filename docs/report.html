@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <title>report.html</title>
+  <title>report_toc.html</title>
   <meta name="generator" content="Haroopad 0.13.1" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -267,18 +267,8 @@ Estimated time:  0h 59min 15sec 378mls
 </body>
 </html>
 </span>
-</code></pre><p>In some cases it is possible to extract valid postal code from given invalid data. For example we can extract postal code ‘13000’ from ‘CZ - 130 00’ and ‘12000’ from ‘12000 Praha 7’.</p><p>This extraction procedure was accomplished with the following regular expression:</p><pre class="python hljs"><code class="python" data-origin="<pre><code class=&quot;python&quot;>patt = r'^(?:.*\D)?([1-9]\d{4})(?:\D.*)?
-
-@@footer
-</body>
-</html>
-
-</code></pre>">patt = <span class="hljs-string">r'^(?:.*\D)?([1-9]\d{4})(?:\D.*)?
-
-@@footer
-</body>
-</html>
-</span>
+</code></pre><p>In some cases it is possible to extract valid postal code from given invalid data. For example we can extract postal code ‘13000’ from ‘CZ - 130 00’ and ‘12000’ from ‘12000 Praha 7’.</p><p>This extraction procedure was accomplished with the following regular expression:</p><pre class="python hljs"><code class="python" data-origin="<pre><code class=&quot;python&quot;>patt = r'^(?:.*\D)?([1-9](?:\s?\d\s?){4})(?:\D.*)?'
+</code></pre>">patt = <span class="hljs-string">r'^(?:.*\D)?([1-9](?:\s?\d\s?){4})(?:\D.*)?'</span>
 </code></pre><p>Another encountered issue is spaces in postcodes. Since most postcodes do not contain any spaces,  all valid postcodes were standardized to the format without spaces.</p><pre><code data-origin="<pre><code>
 Audit report for the whole data set:
 
